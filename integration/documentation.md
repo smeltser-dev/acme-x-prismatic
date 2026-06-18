@@ -1,6 +1,7 @@
-# acme-sync
+# acme-fleet-sync
 
-You can make notes about this integration here.
-Use [Markdown](https://www.markdownguide.org/basic-syntax/) syntax to format your text.
+Wraps a fleet-telematics feed (a custom source with no pre-built connector) and raises a work order for every vehicle past its service interval or reporting a fault code — then creates each work order in the FSM system.
 
-Your documentation will appear within Prismatic under Management > Documentation.
+- **Telematics Connection** — the fleet/telematics API the integration reads from.
+- **FSM Connection** — the field-service system where work orders are created.
+- **Flow: Flag Vehicles For Service** — scans vehicles, flags those due, and POSTs a work order for each.

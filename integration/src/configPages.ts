@@ -49,6 +49,27 @@ export const configPages = {
           },
         },
       }),
+      // The FSM system where work orders get created (the write target).
+      "FSM Connection": connectionConfigVar({
+        stableKey: "a7d3e1c2-9f44-4b8e-bd21-3c6e10aa77b5",
+        dataType: "connection",
+        inputs: {
+          baseUrl: {
+            label: "FSM API Base URL",
+            type: "string",
+            required: true,
+            default: "https://my-json-server.typicode.com/smeltser-dev/acme-x-prismatic",
+            example: "https://acme-fsm.example.com/api",
+          },
+          apiKey: {
+            label: "FSM API Key",
+            placeholder: "FSM API Key",
+            type: "password",
+            required: true,
+            comments: "Any value works against the mock API.",
+          },
+        },
+      }),
     },
   }),
   "Fleet Selection": configPage({

@@ -65,9 +65,29 @@ export const flagVehiclesForService = flow({
       }
     }
 
-    logger.info(`Raised ${workOrders.length} work order(s) from ${vehicles.length} vehicles scanned.`);
+    logger.info(
+      `Flagged ${workOrders.length} of ${vehicles.length} vehicles. Creating work orders in the FSM system...`,
+    );
 
-    return { data: { workOrders, scanned: vehicles.length } };
+    // Create each work order in the FSM system — the second half of the integration.
+    const fsmClient = createTelematicsClient(configVars["FSM Connection"]);
+    const createdWorkOrders: { vehicleId: string; workOrderId: string | number }[] = [];
+    for (const wo of workOrders) {
+      const { data: created } = await fsmClient.post("/workOrders", {
+        vehicleId: wo.vehicleId,
+        vehicleName: wo.vehicleName,
+        trade: wo.trade,
+        reasons: wo.reasons,
+        odometerMiles: wo.odometerMiles,
+        status: "open",
+      });
+      const workOrderId = (created as { id: string | number }).id;
+      createdWorkOrders.push({ vehicleId: wo.vehicleId, workOrderId });
+      logger.info(`Created FSM work order ${workOrderId} for ${wo.vehicleName} (${wo.vehicleId}).`);
+    }
+
+    logger.info(`Created ${createdWorkOrders.length} work order(s) in the FSM system.`);
+    return { data: { workOrders, createdWorkOrders, scanned: vehicles.length } };
   },
 });
 

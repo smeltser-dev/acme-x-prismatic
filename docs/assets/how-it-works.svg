@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" width="1600" height="1000">
+  <defs>
+    <marker id="ah" markerWidth="12" markerHeight="12" refX="8" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#19c2d4"/>
+    </marker>
+    <style>
+      .bg{fill:#0b0f14}
+      .panel{fill:#121925;stroke:#222e3d;stroke-width:1.5}
+      .panel2{fill:#0f1620;stroke:#222e3d;stroke-width:1.5}
+      .accentL{fill:#0e7d8a}
+      text{font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif}
+      .title{fill:#eef4fb;font-size:33px;font-weight:700}
+      .col{fill:#19c2d4;font-size:15px;font-weight:600;letter-spacing:1.5px}
+      .h{fill:#eef4fb;font-size:21px;font-weight:700}
+      .sub{fill:#9fb1c6;font-size:15.5px}
+      .lab{fill:#19c2d4;font-size:14px;font-weight:600;letter-spacing:.5px}
+      .chip{fill:#0b1320;stroke:#2a6f78;stroke-width:1.5}
+      .chipt{fill:#cffaff;font-size:14px;font-weight:600}
+      .line{stroke:#19c2d4;stroke-width:2.5;fill:none}
+      .seg1{fill:#0e7d8a}
+      .seg2{fill:#243244}
+      .segt{fill:#eef4fb;font-size:15px;font-weight:600}
+      .stage{fill:#eef4fb;font-size:16px;font-weight:600}
+    </style>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1600" height="1000"/>
+
+  <text class="title" x="64" y="74">How it works for Acme — build once, every customer self-serves</text>
+  <line x1="64" y1="98" x2="1536" y2="98" stroke="#222e3d" stroke-width="1.5"/>
+
+  <text class="col" x="66" y="146">ACME — BUILDS ONCE</text>
+  <text class="col" x="884" y="146">ACME'S CUSTOMERS — SELF-SERVE</text>
+
+  <!-- Build box -->
+  <rect class="panel" x="64" y="168" width="380" height="120" rx="14"/>
+  <text class="h"   x="86" y="208">Build the integration once</text>
+  <text class="sub" x="86" y="238">code-native SDK / low-code designer</text>
+  <text class="sub" x="86" y="263">+ config wizard (per-customer inputs)</text>
+
+  <!-- Sources box -->
+  <rect class="panel2" x="64" y="350" width="380" height="92" rx="14"/>
+  <text class="h"   x="86" y="388" style="font-size:18px">Telematics / SOAP · custom legacy</text>
+  <text class="sub" x="86" y="416">code-native fills gaps the 190+ connectors don't</text>
+  <!-- arrow sources -> build -->
+  <line class="line" x1="254" y1="350" x2="254" y2="290" marker-end="url(#ah)"/>
+  <text class="lab" x="266" y="326">feeds</text>
+
+  <!-- publish arrow -->
+  <line class="line" x1="444" y1="228" x2="864" y2="228" marker-end="url(#ah)"/>
+  <text class="lab" x="600" y="216">publish</text>
+
+  <!-- Marketplace -->
+  <rect class="panel" x="864" y="168" width="672" height="120" rx="14"/>
+  <text class="h"   x="888" y="208">Embedded Marketplace</text>
+  <text class="sub" x="888" y="238">inside Acme's app</text>
+  <text class="sub" x="888" y="263">the customer walks the wizard → activates</text>
+
+  <!-- creates arrow -->
+  <line class="line" x1="1200" y1="288" x2="1200" y2="348" marker-end="url(#ah)"/>
+  <text class="lab" x="1214" y="324">creates</text>
+
+  <!-- Instances -->
+  <rect class="panel" x="864" y="348" width="672" height="150" rx="14"/>
+  <text class="h" x="888" y="388">Per-customer instances</text>
+  <rect class="chip" x="888" y="406" width="160" height="40" rx="9"/>
+  <text class="chipt" x="912" y="431">Customer A</text>
+  <rect class="chip" x="1060" y="406" width="160" height="40" rx="9"/>
+  <text class="chipt" x="1084" y="431">Customer B</text>
+  <rect class="chip" x="1232" y="406" width="160" height="40" rx="9"/>
+  <text class="chipt" x="1256" y="431">Customer C</text>
+  <text class="chipt" x="1408" y="431" style="font-size:20px">…</text>
+  <text class="sub" x="888" y="478">own credentials · isolated · individually monitored on the managed runtime</text>
+
+  <!-- long tail arrow -->
+  <line class="line" x1="1200" y1="498" x2="1200" y2="558" marker-end="url(#ah)"/>
+  <text class="lab" x="1214" y="534">long tail</text>
+
+  <!-- Workflow Builder -->
+  <rect class="panel" x="864" y="558" width="672" height="112" rx="14"/>
+  <text class="h" x="888" y="598" style="font-size:19px">Embedded Workflow Builder + AI Copilot</text>
+  <text class="sub" x="888" y="626">the customer authors their OWN workflow — triggers · steps · branching</text>
+  <text class="sub" x="888" y="650">Copilot drafts it from plain language · no Acme engineering</text>
+
+  <!-- Ownership spectrum band -->
+  <rect class="panel2" x="64" y="724" width="1472" height="212" rx="14"/>
+  <text class="col" x="86" y="762">OWNERSHIP SPECTRUM</text>
+
+  <text class="stage" x="120" y="812">Acme authors</text>
+  <text class="stage" x="120" y="834">&amp; publishes</text>
+  <line class="line" x1="320" y1="822" x2="470" y2="822" marker-end="url(#ah)"/>
+  <text class="stage" x="500" y="812">Customer configures</text>
+  <text class="stage" x="500" y="834">&amp; activates (Marketplace)</text>
+  <line class="line" x1="820" y1="822" x2="970" y2="822" marker-end="url(#ah)"/>
+  <text class="stage" x="1000" y="812">Customer authors own</text>
+  <text class="stage" x="1000" y="834">(Workflow Builder)</text>
+
+  <rect class="seg1" x="86" y="866" width="900" height="44" rx="9"/>
+  <text class="segt" x="110" y="894">Acme owns the catalog + guardrails</text>
+  <rect class="seg2" x="994" y="866" width="520" height="44" rx="9"/>
+  <text class="segt" x="1018" y="894">customer owns the last-mile variation</text>
+</svg>

@@ -55,5 +55,8 @@
       "faultCode": null,
       "status": "active"
     }
+  ],
+  "workOrders": [
+    { "id": 1, "vehicleId": "WRX-000", "status": "closed" }
   ]
 }

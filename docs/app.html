@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Acme FSM — Integrations (live embed)</title>
+<meta name="description" content="Acme FSM's embedded integration marketplace and workflow builder, powered by Prismatic." />
+<style>
+  :root{
+    --bg:#0b0f14; --panel:#121925; --panel2:#0f1620; --line:#222e3d;
+    --ink:#eef4fb; --muted:#9fb1c6; --teal:#19c2d4; --teal-dim:#0e7d8a;
+    --warn:#f0a23b; --good:#36d39a;
+    --radius:14px; --maxw:1200px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--teal); text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 22px}
+
+  header.site{display:flex; align-items:center; justify-content:space-between;
+    padding:18px 22px; border-bottom:1px solid var(--line);
+    position:sticky; top:0; background:rgba(11,15,20,.82); backdrop-filter:blur(8px); z-index:5}
+  .brand{font-weight:700; letter-spacing:.2px; font-size:18px}
+  .brand .mark{color:var(--teal)}
+  .powered{font-size:12px; color:var(--muted)}
+  .powered b{color:var(--ink); font-weight:600}
+  header.site nav a{color:var(--muted); margin-left:18px; font-size:14px}
+  header.site nav a:hover{color:var(--ink)}
+
+  .barrow{display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; margin:26px 0 14px}
+  .toggle{display:inline-flex; border:1px solid var(--line); border-radius:999px; padding:4px; background:var(--panel2)}
+  .toggle button{appearance:none; border:0; background:transparent; color:var(--muted);
+    font:inherit; font-weight:600; font-size:14px; padding:9px 20px; border-radius:999px; cursor:pointer; transition:.2s}
+  .toggle button.active{background:var(--teal-dim); color:#cffaff}
+
+  .status{display:inline-flex; align-items:center; gap:8px; font-size:13px; color:var(--muted)}
+  .dot{width:9px; height:9px; border-radius:50%; background:var(--muted)}
+  .dot.live{background:var(--good); box-shadow:0 0 0 3px rgba(54,211,154,.18)}
+  .dot.err{background:var(--warn)}
+
+  .stage{position:relative; border:1px solid var(--line); border-radius:var(--radius);
+    background:linear-gradient(180deg,var(--panel),var(--panel2)); overflow:hidden; min-height:78vh}
+  .pane{display:none}
+  .pane.active{display:block}
+  .pane > div{width:100%; height:78vh}
+
+  .overlay{position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    background:var(--panel2); z-index:2; text-align:center; padding:24px}
+  .overlay.hide{display:none}
+  .spinner{width:42px; height:42px; border-radius:50%; border:3px solid rgba(25,194,212,.25);
+    border-top-color:var(--teal); animation:spin .8s linear infinite; margin:0 auto 16px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .overlay h3{margin:0 0 6px; font-size:17px}
+  .overlay p{margin:0; color:var(--muted); font-size:14px; max-width:460px}
+  .overlay .retry{margin-top:16px; display:inline-block; padding:10px 18px; border-radius:10px;
+    font-weight:600; font-size:14px; background:var(--teal); color:#04161a; border:0; cursor:pointer}
+  .overlay .err-icon{font-size:34px; margin-bottom:10px}
+
+  footer{color:var(--muted); font-size:13px; padding:22px 0 50px}
+</style>
+</head>
+<body>
+<header class="site">
+  <div class="brand">Acme&nbsp;<span class="mark">FSM</span></div>
+  <div class="powered">powered by <b>Prismatic</b></div>
+  <nav>
+    <a href="./index.html">← Overview</a>
+  </nav>
+</header>
+
+<div class="wrap">
+  <div class="barrow">
+    <div class="toggle" role="tablist" aria-label="Embedded views">
+      <button id="tab-marketplace" class="active" data-pane="marketplace" role="tab">Marketplace</button>
+      <button id="tab-workflows" data-pane="workflows" role="tab">Workflow Builder</button>
+    </div>
+    <div class="status"><span class="dot" id="statusDot"></span><span id="statusText">Connecting…</span></div>
+  </div>
+
+  <div class="stage">
+    <!-- Loading / error overlay -->
+    <div class="overlay" id="overlay">
+      <div id="overlayContent">
+        <div class="spinner"></div>
+        <h3>Loading your integrations…</h3>
+        <p>Authenticating with Prismatic.</p>
+      </div>
+    </div>
+
+    <div class="pane active" id="pane-marketplace"><div id="acme-marketplace"></div></div>
+    <div class="pane" id="pane-workflows"><div id="acme-workflows"></div></div>
+  </div>
+
+  <footer>Embedded marketplace &amp; workflow builder for <b>Acme Corp [Demo]</b>. Tokens are minted server-side and refreshed automatically.</footer>
+</div>
+
+<script type="module">
+  // Prismatic Embedded SDK — pinned to a known-good version, default export.
+  // Source verified against esm.sh (resolves @prismatic-io/embedded -> 4.12.1).
+  import prismatic from "https://esm.sh/@prismatic-io/embedded@4.12.1";
+
+  const TOKEN_URL    = "https://acme-token-svc-la46gp2hda-uc.a.run.app/token";
+  const PRISMATIC_URL = "https://app.prismatic.io";
+
+  // Acme FSM brand — dark theme + teal accent, passed to the SDK so iframes read as Acme.
+  const ACME_INIT = {
+    prismaticUrl: PRISMATIC_URL,
+    theme: "DARK",
+    fontConfiguration: { google: { families: ["Inter"] } },
+    screenConfiguration: {
+      // Loading screen colors while each iframe spins up.
+      initializing: { background: "#0f1620", color: "#19c2d4" },
+    },
+  };
+
+  const els = {
+    overlay: document.getElementById("overlay"),
+    overlayContent: document.getElementById("overlayContent"),
+    statusDot: document.getElementById("statusDot"),
+    statusText: document.getElementById("statusText"),
+  };
+
+  let reAuthTimer = null;
+  let shown = { marketplace: false, workflows: false };
+
+  function setStatus(state, text){
+    els.statusDot.className = "dot" + (state === "live" ? " live" : state === "err" ? " err" : "");
+    els.statusText.textContent = text;
+  }
+
+  function showLoading(){
+    els.overlayContent.innerHTML =
+      '<div class="spinner"></div><h3>Loading your integrations…</h3><p>Authenticating with Prismatic.</p>';
+    els.overlay.classList.remove("hide");
+  }
+
+  function showError(msg){
+    setStatus("err", "Connection failed");
+    els.overlayContent.innerHTML =
+      '<div class="err-icon">⚠️</div>' +
+      '<h3>Couldn\'t load your integrations</h3>' +
+      '<p>' + msg + '</p>' +
+      '<button class="retry" id="retryBtn">Try again</button>';
+    els.overlay.classList.remove("hide");
+    document.getElementById("retryBtn").addEventListener("click", () => {
+      showLoading();
+      setStatus("", "Connecting…");
+      fetchAndAuthenticate();
+    });
+  }
+
+  function hideOverlay(){ els.overlay.classList.add("hide"); }
+
+  // Render both embedded screens once. Both iframes mount up front; the tab
+  // toggle just shows/hides their containers. Existing iframes auto-update
+  // when authenticate() is called again, so we only mount each once.
+  function renderScreens(){
+    if (!shown.marketplace){
+      shown.marketplace = true;
+      prismatic.showMarketplace({
+        selector: "#acme-marketplace",
+        usePopover: false,
+        theme: "DARK",
+        screenConfiguration: { initializing: { background: "#0f1620", color: "#19c2d4" } },
+      });
+    }
+    if (!shown.workflows){
+      shown.workflows = true;
+      prismatic.showWorkflows({
+        selector: "#acme-workflows",
+        usePopover: false,
+        theme: "DARK",
+        screenConfiguration: { initializing: { background: "#0f1620", color: "#19c2d4" } },
+      });
+    }
+  }
+
+  // Always fetch the signed JWT from the backend — never sign on the frontend.
+  async function fetchAndAuthenticate(){
+    try {
+      const res = await fetch(TOKEN_URL, { method: "GET" });
+      if (!res.ok) throw new Error("Token service returned " + res.status);
+      const { token, expiresAt } = await res.json();
+      if (!token) throw new Error("Token service returned an empty token.");
+
+      await prismatic.authenticate({ token });
+
+      hideOverlay();
+      setStatus("live", "Connected as Acme Corp [Demo]");
+      renderScreens();
+
+      // Re-auth ~60s before expiry so a left-open tab survives the 10-min window.
+      // expiresAt is epoch-MILLISECONDS from this endpoint.
+      if (reAuthTimer) clearTimeout(reAuthTimer);
+      if (typeof expiresAt === "number") {
+        const lead = 60_000;
+        let delay = expiresAt - Date.now() - lead;
+        if (!Number.isFinite(delay) || delay < 5_000) delay = 5_000; // floor, never negative
+        reAuthTimer = setTimeout(fetchAndAuthenticate, delay);
+      }
+    } catch (err) {
+      console.error("Prismatic auth failed:", err);
+      showError((err && err.message) ? err.message : "Unexpected error contacting the token service.");
+    }
+  }
+
+  // Tab toggle — show/hide the already-mounted containers.
+  document.querySelectorAll(".toggle button").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const pane = btn.dataset.pane;
+      document.querySelectorAll(".toggle button").forEach(b => b.classList.toggle("active", b === btn));
+      document.getElementById("pane-marketplace").classList.toggle("active", pane === "marketplace");
+      document.getElementById("pane-workflows").classList.toggle("active", pane === "workflows");
+    });
+  });
+
+  // Boot: init once, then authenticate + render.
+  prismatic.init(ACME_INIT);
+  fetchAndAuthenticate();
+</script>
+</body>
+</html>

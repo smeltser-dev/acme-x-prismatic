@@ -1,0 +1,59 @@
+{
+  "vehicles": [
+    {
+      "id": "WRX-101",
+      "vehicleName": "Van 101 — Midtown HVAC",
+      "trade": "HVAC",
+      "engineHours": 4820,
+      "lastServiceHours": 4700,
+      "serviceIntervalHours": 200,
+      "odometerMiles": 88234,
+      "faultCode": null,
+      "status": "active"
+    },
+    {
+      "id": "WRX-114",
+      "vehicleName": "Truck 114 — Eastside Plumbing",
+      "trade": "Plumbing",
+      "engineHours": 6190,
+      "lastServiceHours": 5950,
+      "serviceIntervalHours": 200,
+      "odometerMiles": 121402,
+      "faultCode": "P0420",
+      "status": "active"
+    },
+    {
+      "id": "WRX-127",
+      "vehicleName": "Van 127 — North Electric",
+      "trade": "Electrical",
+      "engineHours": 3010,
+      "lastServiceHours": 2900,
+      "serviceIntervalHours": 200,
+      "odometerMiles": 54219,
+      "faultCode": null,
+      "status": "active"
+    },
+    {
+      "id": "WRX-133",
+      "vehicleName": "Truck 133 — Westgate Mechanical",
+      "trade": "HVAC",
+      "engineHours": 7402,
+      "lastServiceHours": 7180,
+      "serviceIntervalHours": 200,
+      "odometerMiles": 142880,
+      "faultCode": null,
+      "status": "active"
+    },
+    {
+      "id": "WRX-140",
+      "vehicleName": "Van 140 — Riverside Plumbing",
+      "trade": "Plumbing",
+      "engineHours": 1985,
+      "lastServiceHours": 1900,
+      "serviceIntervalHours": 200,
+      "odometerMiles": 33110,
+      "faultCode": null,
+      "status": "active"
+    }
+  ]
+}

@@ -3,177 +3,221 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Acme FSM × Prismatic — fleet telematics, two futures</title>
-<meta name="description" content="A sales-engineering leave-behind: the same fleet-telematics integration, built by hand vs. with Prismatic — plus a real code-native Spectral integration." />
+<title>Acme FSM — the integrations their customers asked for, built</title>
+<meta name="description" content="Acme FSM runs field service for the trades. Their customers wanted integrations — CRM, accounting, fleet telematics — faster than engineering could build them. Here's that situation, handled inside Acme's own product." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#0b0f14; --panel:#121925; --panel2:#0f1620; --line:#222e3d;
-    --ink:#eef4fb; --muted:#9fb1c6; --teal:#19c2d4; --teal-dim:#0e7d8a;
-    --warn:#f0a23b; --warn-dim:#7a5320; --good:#36d39a;
-    --radius:14px; --maxw:1060px;
+    --canvas:#eef2f6; --surface:#ffffff; --surface-2:#f8fafc;
+    --ink:#0d1b26; --ink-2:#41576b; --ink-3:#7589a0;
+    --line:#e2e9f0; --line-2:#eef3f7;
+    --teal:#0e98a4; --teal-deep:#0a6f78; --teal-tint:#e3f5f6;
+    --amber:#d97726; --amber-tint:#fbf0e3; --amber-ink:#9a5316;
+    --green:#1c9a68; --green-tint:#e7f6ee;
+    --slate-1:#0c1923; --slate-2:#0a141d;
+    --shadow-sm:0 1px 2px rgba(13,27,38,.06),0 1px 1px rgba(13,27,38,.04);
+    --shadow-md:0 4px 16px rgba(13,27,38,.08),0 1px 3px rgba(13,27,38,.05);
+    --r:14px;
   }
   *{box-sizing:border-box}
-  html{scroll-behavior:smooth}
-  body{
-    margin:0; background:var(--bg); color:var(--ink);
-    font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
-    -webkit-font-smoothing:antialiased;
-  }
-  a{color:var(--teal); text-decoration:none}
-  a:hover{text-decoration:underline}
-  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 22px}
-  header.site{display:flex; align-items:center; justify-content:space-between; padding:18px 22px; border-bottom:1px solid var(--line); position:sticky; top:0; background:rgba(11,15,20,.82); backdrop-filter:blur(8px); z-index:5}
-  .brand{font-weight:700; letter-spacing:.2px}
-  .brand .x{color:var(--teal)}
-  header.site nav a{color:var(--muted); margin-left:18px; font-size:14px}
+  body{margin:0;background:var(--canvas);color:var(--ink);
+    font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+  ::selection{background:var(--teal-tint)}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace}
+  .cond{font-family:"IBM Plex Sans Condensed",sans-serif}
+  a{color:var(--teal-deep);text-decoration:none}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+
+  header.site{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.86);
+    backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid var(--line)}
+  header.site .wrap{display:flex;align-items:center;justify-content:space-between;height:62px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px}
+  .brand .mk{color:var(--teal-deep)}
+  header.site nav a{color:var(--ink-2);margin-left:20px;font-size:14px;font-weight:500}
   header.site nav a:hover{color:var(--ink)}
+  header.site nav a.cta{color:var(--teal-deep);font-weight:600}
 
-  .hero{padding:64px 0 34px}
-  .kicker{color:var(--teal); font-weight:600; font-size:13px; letter-spacing:.14em; text-transform:uppercase}
-  h1{font-size:clamp(28px,4.4vw,46px); line-height:1.1; margin:14px 0 10px; letter-spacing:-.5px}
-  h1 .swap{transition:color .25s}
-  .sub{color:var(--muted); font-size:18px; max-width:680px}
+  .btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);
+    color:var(--ink);padding:11px 18px;border-radius:10px;font-size:14px;font-weight:600;box-shadow:var(--shadow-sm);transition:.15s}
+  .btn:hover{border-color:var(--ink-3);transform:translateY(-1px)}
+  .btn.primary{background:var(--teal-deep);border-color:var(--teal-deep);color:#eafdff}
+  .btn.primary:hover{background:#085058}
 
-  .toggle{display:inline-flex; margin:30px 0 8px; border:1px solid var(--line); border-radius:999px; padding:4px; background:var(--panel2)}
-  .toggle button{appearance:none; border:0; background:transparent; color:var(--muted); font:inherit; font-weight:600; font-size:14px; padding:9px 18px; border-radius:999px; cursor:pointer; transition:.2s}
-  .toggle button.active[data-mode="without"]{background:var(--warn-dim); color:#ffd9a3}
-  .toggle button.active[data-mode="with"]{background:var(--teal-dim); color:#cffaff}
-  .modeline{font-size:14px; color:var(--muted); margin-top:6px}
+  .eyebrow{font-family:"IBM Plex Sans Condensed",sans-serif;font-size:12px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--teal-deep);font-weight:600}
 
-  section{padding:30px 0}
-  h2{font-size:22px; margin:0 0 4px; letter-spacing:-.2px}
-  .lead{color:var(--muted); margin:0 0 20px}
+  /* hero */
+  .hero{padding:62px 0 36px}
+  .hero h1{font-size:clamp(30px,4.6vw,50px);line-height:1.08;letter-spacing:-1px;margin:14px 0 14px;max-width:18ch}
+  .hero .lede{font-size:19px;color:var(--ink-2);max-width:60ch;margin:0 0 28px}
+  .hero .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+  .hero .micro{font-size:13px;color:var(--ink-3);margin-top:14px}
 
-  .grid{display:grid; gap:14px}
-  .dims{grid-template-columns:1fr 1fr 1fr}
-  @media(max-width:820px){.dims{grid-template-columns:1fr}}
-  .card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:16px 18px}
-  .card .k{font-size:12px; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-bottom:6px}
-  .card .v{font-size:16px; font-weight:600}
-  .card.without{border-left:3px solid var(--warn)}
-  .card.with{border-left:3px solid var(--teal)}
+  /* situation strip */
+  .strip{background:linear-gradient(185deg,var(--slate-1),var(--slate-2));color:#c7d6e2;border-radius:18px;
+    padding:30px 32px;margin:8px 0 12px;box-shadow:var(--shadow-md)}
+  .strip .eyebrow{color:#2fd0db}
+  .strip h2{color:#fff;font-size:22px;margin:8px 0 18px;letter-spacing:-.3px;font-weight:600}
+  .facts{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+  .facts .f .n{font-size:27px;font-weight:700;color:#fff;letter-spacing:-.5px}
+  .facts .f .l{font-size:12.5px;color:#8fa6b8;margin-top:2px;line-height:1.4}
+  @media(max-width:720px){.facts{grid-template-columns:repeat(2,1fr)}}
 
-  .surfaces{grid-template-columns:1fr 1fr; margin-top:6px}
-  @media(max-width:820px){.surfaces{grid-template-columns:1fr}}
-  .surface{background:linear-gradient(180deg,var(--panel),var(--panel2)); border:1px solid var(--line); border-radius:var(--radius); padding:18px}
-  .surface .tag{display:inline-block; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--teal); border:1px solid var(--teal-dim); border-radius:6px; padding:2px 8px; margin-bottom:10px}
-  .surface.pain .tag{color:var(--warn); border-color:var(--warn-dim)}
-  .surface h3{margin:0 0 6px; font-size:16px}
-  .surface p{margin:0; color:var(--muted); font-size:14px}
+  section{padding:34px 0}
+  h2.sec{font-size:25px;letter-spacing:-.4px;margin:0 0 6px}
+  .sub{color:var(--ink-3);margin:0 0 22px;max-width:64ch}
 
-  .callout{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:22px; display:flex; gap:18px; align-items:flex-start}
-  .callout .badge{font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--teal)}
-  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:13px}
-  .logbox{background:#070b10; border:1px solid var(--line); border-radius:10px; padding:14px 16px; color:#bfe9ef; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:13px; line-height:1.7; overflow:auto}
-  .logbox .ok{color:var(--good)} .logbox .wo{color:var(--warn)}
+  /* the problem, in their words */
+  .pains{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+  @media(max-width:820px){.pains{grid-template-columns:1fr}}
+  .pain{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--amber);
+    border-radius:var(--r);padding:18px 20px;box-shadow:var(--shadow-sm)}
+  .pain h3{margin:0 0 6px;font-size:15.5px}
+  .pain p{margin:0;color:var(--ink-2);font-size:13.5px;line-height:1.55}
 
-  .video{position:relative; border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; background:#070b10; aspect-ratio:16/9; display:flex; align-items:center; justify-content:center}
-  .video iframe{width:100%; height:100%; border:0}
-  .video .ph{text-align:center; color:var(--muted)}
-  .video .ph .play{width:64px; height:64px; border-radius:50%; border:2px solid var(--teal); display:flex; align-items:center; justify-content:center; margin:0 auto 12px; color:var(--teal); font-size:22px}
+  /* product callout */
+  .product{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow-md)}
+  .product .top{display:flex;gap:9px;align-items:center;padding:13px 18px;border-bottom:1px solid var(--line-2);background:var(--surface-2)}
+  .product .top .dot{width:11px;height:11px;border-radius:50%;background:var(--line)}
+  .product .top .url{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-3);
+    background:var(--surface);border:1px solid var(--line);border-radius:7px;padding:4px 12px;margin-left:6px}
+  .product .body{padding:26px 28px}
+  .product .body h3{margin:0 0 8px;font-size:20px;letter-spacing:-.3px}
+  .product .body p{margin:0 0 18px;color:var(--ink-2);max-width:62ch}
+  .product .feats{display:grid;grid-template-columns:1fr 1fr;gap:12px 26px;margin:0 0 22px}
+  @media(max-width:720px){.product .feats{grid-template-columns:1fr}}
+  .feat{display:flex;gap:11px;align-items:flex-start}
+  .feat .ic{width:30px;height:30px;border-radius:8px;flex:0 0 30px;display:grid;place-items:center;
+    background:var(--teal-tint);color:var(--teal-deep)}
+  .feat .ic svg{width:16px;height:16px}
+  .feat b{font-size:14.5px;display:block}
+  .feat span{font-size:13px;color:var(--ink-3);line-height:1.5}
 
-  .stories{grid-template-columns:1fr 1fr 1fr}
-  @media(max-width:820px){.stories{grid-template-columns:1fr}}
-  .story .stat{font-size:24px; font-weight:800; color:var(--teal)}
-  .story .who{font-weight:700; margin-top:2px}
-  .story .desc{color:var(--muted); font-size:14px}
+  /* what's running */
+  .running{display:grid;grid-template-columns:1.1fr 1fr;gap:18px;align-items:start}
+  @media(max-width:820px){.running{grid-template-columns:1fr}}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:22px;box-shadow:var(--shadow-sm)}
+  .card h3{margin:0 0 4px;font-size:16px;display:flex;align-items:center;gap:9px}
+  .card h3 .tag{font-family:"IBM Plex Sans Condensed",sans-serif;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;
+    font-weight:700;padding:2px 8px;border-radius:6px}
+  .tag.code{background:var(--teal-tint);color:var(--teal-deep)} .tag.lib{background:var(--surface-2);color:var(--ink-3);border:1px solid var(--line)}
+  .card p{margin:8px 0 0;color:var(--ink-2);font-size:13.5px}
+  .conns{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .conn{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;
+    border:1px solid var(--line);border-radius:8px;padding:5px 10px;background:var(--surface-2)}
+  .conn .g{width:18px;height:18px;border-radius:5px;display:grid;place-items:center;color:#fff;font-size:10px;font-weight:700;font-family:"IBM Plex Sans Condensed",sans-serif}
+  .logbox{background:var(--slate-1);border-radius:10px;padding:14px 16px;color:#bfe9ef;
+    font-family:"IBM Plex Mono",monospace;font-size:12.5px;line-height:1.75;overflow:auto;margin-top:14px}
+  .logbox .ok{color:#5fe0a8} .logbox .wo{color:#f0b86a}
 
-  .row{display:flex; gap:12px; flex-wrap:wrap; margin-top:18px}
-  .btn{display:inline-block; padding:11px 18px; border-radius:10px; font-weight:600; font-size:14px; border:1px solid var(--line)}
-  .btn.primary{background:var(--teal); color:#04161a; border-color:var(--teal)}
-  .btn.primary:hover{text-decoration:none; filter:brightness(1.05)}
-  .btn.ghost{color:var(--ink)}
-  footer{border-top:1px solid var(--line); color:var(--muted); font-size:14px; padding:28px 0 60px}
-  .note{font-size:12px; color:var(--muted); margin-top:8px}
+  footer{border-top:1px solid var(--line);color:var(--ink-3);font-size:13.5px;padding:26px 0 60px;margin-top:14px}
+  footer .pp{color:var(--ink-2)} footer a{font-weight:500}
 </style>
 </head>
 <body>
 <header class="site">
-  <div class="brand">Acme&nbsp;FSM <span class="x">×</span> Prismatic</div>
-  <nav>
-    <a href="./app.html">Open the app ↗</a>
-    <a href="#integration" >Integration</a>
-    <a href="https://github.com/smeltser-dev/acme-x-prismatic">Code ↗</a>
-  </nav>
+  <div class="wrap">
+    <div class="brand">
+      <svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="9" fill="#0e98a4"/><path d="M20 10.5l8 14.8H12L20 10.5z" stroke="#d6fbff" stroke-width="2.2" stroke-linejoin="round"/><circle cx="20" cy="29.5" r="2.3" fill="#d6fbff"/></svg>
+      Acme&nbsp;<span class="mk">FSM</span>
+    </div>
+    <nav>
+      <a href="#situation">The situation</a>
+      <a href="#running">What's running</a>
+      <a class="cta" href="./app.html">Open the product ↗</a>
+    </nav>
+  </div>
 </header>
 
 <div class="wrap">
 
+  <!-- HERO -->
   <div class="hero">
-    <div class="kicker">Field-service integrations</div>
-    <h1>The same fleet-telematics problem, <span class="swap" id="heroSwap">solved with Prismatic</span>.</h1>
-    <p class="sub">Acme's telematics feed has no off-the-shelf connector. Here's what it costs to build by hand — and what changes when Acme builds it <em>with</em> Prismatic. Same data, two futures.</p>
-
+    <div class="eyebrow">Field service management · for the trades</div>
+    <h1>The integrations Acme's customers asked for — built and running.</h1>
+    <p class="lede">Acme FSM's customers kept asking to connect their CRM, their accounting, their trucks. Engineering couldn't build one-off integrations fast enough, and sales started losing deals over it. This is that situation — handled inside Acme's own product.</p>
     <div class="row">
       <a class="btn primary" href="./app.html">Open the live Acme product →</a>
-      <a class="btn ghost" href="#integration">See the real integration code ↗</a>
+      <a class="btn" href="https://github.com/smeltser-dev/acme-x-prismatic/tree/main/integration">See the integration code ↗</a>
     </div>
-    <p class="note" style="margin-top:10px">A working Acme FSM console on live telematics — with Prismatic's marketplace &amp; workflow builder embedded natively. Built in under two days.</p>
-
-    <div class="toggle" role="tablist" aria-label="Compare approaches">
-      <button data-mode="without">Without Prismatic</button>
-      <button data-mode="with">With Prismatic</button>
-    </div>
-    <div class="modeline" id="modeline"></div>
+    <div class="micro">A working field-service console on live telematics, with the requested integrations embedded natively. Built in under two days.</div>
   </div>
 
-  <section>
-    <h2 id="compareHead">What changes</h2>
-    <p class="lead" id="compareLead"></p>
-    <div class="grid dims" id="dims"></div>
+  <!-- SITUATION STRIP -->
+  <div class="strip">
+    <div class="eyebrow">Who Acme is</div>
+    <h2>A field-service platform for HVAC, plumbing &amp; electrical contractors — growing fast, and bottlenecked on integrations.</h2>
+    <div class="facts">
+      <div class="f"><div class="n">$30M</div><div class="l">ARR, growing +40% YoY</div></div>
+      <div class="f"><div class="n">~30%</div><div class="l">of engineering spent on one-off integrations</div></div>
+      <div class="f"><div class="n">1</div><div class="l">Salesforce integration built in-house — and they felt the pain</div></div>
+      <div class="f"><div class="n">20+</div><div class="l">more their customers are asking for</div></div>
+    </div>
+  </div>
+
+  <!-- THE PROBLEM IN THEIR WORDS -->
+  <section id="situation">
+    <h2 class="sec">What this costs them today</h2>
+    <p class="sub">Not a missing feature — a structural drag. Every integration their customers want lands on the same engineering team that's supposed to be building Acme's core product.</p>
+    <div class="pains">
+      <div class="pain"><h3>Engineering is the bottleneck</h3><p>Every new connector — CRM, accounting, a customer's telematics feed — is a bespoke project competing with core-product roadmap.</p></div>
+      <div class="pain"><h3>Sales loses deals</h3><p>Prospects compare integration catalogs. "Do you connect to NetSuite?" turns into a six-week answer, or a lost deal.</p></div>
+      <div class="pain"><h3>The long tail never ends</h3><p>Each customer wants the 5% that's different. There's no way to staff one-offs for every contractor on the platform.</p></div>
+    </div>
   </section>
 
+  <!-- THE PRODUCT -->
   <section>
-    <h2 id="surfHead"></h2>
-    <p class="lead" id="surfLead"></p>
-    <div class="grid surfaces" id="surfaces"></div>
-  </section>
-
-  <section id="integration">
-    <h2>The custom source — handled in code</h2>
-    <p class="lead">Acme's fleet telematics is exactly the "weird" source no connector covers. We wrapped it in a <strong>code-native Spectral (TypeScript)</strong> integration that flags vehicles for service. Real code, in the repo.</p>
-    <div class="callout">
-      <div>
-        <div class="badge">Live execution log</div>
-        <div class="logbox" style="margin-top:10px">
-          Pulled 5 vehicles from telematics.<br>
-          <span class="wo">Work order:</span> Truck 114 — Eastside Plumbing (WRX-114) — service interval exceeded (240h); fault code P0420<br>
-          <span class="wo">Work order:</span> Truck 133 — Westgate Mechanical (WRX-133) — service interval exceeded (222h)<br>
-          <span class="ok">✓ Raised 2 work order(s) from 5 vehicles scanned.</span>
+    <div class="eyebrow" style="margin-bottom:8px">The same situation, handled</div>
+    <h2 class="sec" style="margin-bottom:14px">Inside Acme's actual product</h2>
+    <div class="product">
+      <div class="top">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span class="url">app.acme-fsm.com</span>
+      </div>
+      <div class="body">
+        <h3>A real field-service console — fleet, work orders, customers — with integrations built in.</h3>
+        <p>The same telematics data Acme's customers run on, the dispatch board, the accounts — and the integrations they asked for, activated by each customer themselves. No Acme engineer in the loop per connection.</p>
+        <div class="feats">
+          <div class="feat"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div><div><b>Live fleet &amp; work orders</b><span>Telematics flags vehicles for service automatically and opens the work order.</span></div></div>
+          <div class="feat"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 3v6a6 6 0 0 0 12 0V3"/><path d="M12 21v-6"/></svg></div><div><b>An embedded marketplace</b><span>Salesforce, QuickBooks, HubSpot, NetSuite — each customer activates their own.</span></div></div>
+          <div class="feat"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg></div><div><b>A workflow builder</b><span>For the long-tail 5%, the customer builds it themselves — Acme stays on core product.</span></div></div>
+          <div class="feat"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div><div><b>Built once, many customers</b><span>One definition, a dedicated isolated instance per contractor.</span></div></div>
         </div>
-        <p class="note">The config wizard's vehicle dropdown live-fetches the customer's own data — self-serve setup, no Acme engineer per customer. <a href="https://github.com/smeltser-dev/acme-x-prismatic/tree/main/integration">Read the integration code ↗</a></p>
+        <a class="btn primary" href="./app.html">Open the product →</a>
       </div>
     </div>
   </section>
 
-  <section id="demo">
-    <h2>2-minute walkthrough</h2>
-    <p class="lead">The integration running on Prismatic's managed runtime — config wizard, live data, execution logs.</p>
-    <div class="video" id="video">
-      <div class="ph">
-        <div class="play">▶</div>
-        <div>Walkthrough video</div>
-        <div class="note">(unlisted YouTube — drops in here)</div>
+  <!-- WHAT'S RUNNING -->
+  <section id="running">
+    <h2 class="sec">What's actually running</h2>
+    <p class="sub">Two kinds of integration, matched to the two kinds of problem Acme has — the off-the-shelf systems their customers already use, and the custom feed no connector covers.</p>
+    <div class="running">
+      <div class="card">
+        <h3>The custom telematics feed <span class="tag code">Code-native</span></h3>
+        <p>Acme's fleet telematics has no off-the-shelf connector — the classic "weird source." It's wrapped in a code-native TypeScript integration that flags vehicles for service and raises a work order. Real code, in the repo.</p>
+        <div class="logbox">
+          Pulled 5 vehicles from telematics.<br>
+          <span class="wo">Work order:</span> Truck 114 — Eastside Plumbing (WRX-114) — interval exceeded (240h); fault P0420<br>
+          <span class="wo">Work order:</span> Truck 133 — Westgate Mechanical (WRX-133) — interval exceeded (222h)<br>
+          <span class="ok">✓ Raised 2 work orders from 5 vehicles scanned.</span>
+        </div>
       </div>
-    </div>
-  </section>
-
-  <section>
-    <h2>Customers with the same shape of problem</h2>
-    <p class="lead">Prismatic customers who moved off hand-built integrations (figures as published by Prismatic).</p>
-    <div class="grid stories">
-      <a class="card story" href="https://prismatic.io/customers/strms/">
-        <div class="stat">80%</div><div class="who">STRMS</div>
-        <div class="desc">less integration maintenance · 50% more customers</div>
-      </a>
-      <a class="card story" href="https://prismatic.io/customers/duro-labs/">
-        <div class="stat">10×</div><div class="who">Duro Labs</div>
-        <div class="desc">faster builds · customers self-activate, engineers freed</div>
-      </a>
-      <a class="card story" href="https://prismatic.io/customers/karbon/">
-        <div class="stat">75+</div><div class="who">Karbon</div>
-        <div class="desc">integrations in a year · 80% less dev time</div>
-      </a>
+      <div class="card">
+        <h3>The systems they already use <span class="tag lib">Prebuilt</span></h3>
+        <p>The connectors Acme's customers asked for, live in the embedded marketplace — each contractor activates their own, isolated instance through a config wizard.</p>
+        <div class="conns">
+          <span class="conn"><span class="g" style="background:#1798c1">SF</span>Salesforce · CRM</span>
+          <span class="conn"><span class="g" style="background:#2ca01c">QB</span>QuickBooks · Accounting</span>
+          <span class="conn"><span class="g" style="background:#ff7a59">HS</span>HubSpot · CRM</span>
+          <span class="conn"><span class="g" style="background:#1f3a5f">NS</span>NetSuite · ERP</span>
+        </div>
+        <p style="margin-top:14px;font-size:13px;color:var(--ink-3)">Drawn from a library of 200+ connectors — Acme's team assembles, the customer self-serves.</p>
+      </div>
     </div>
   </section>
 
@@ -181,109 +225,11 @@
 
 <footer>
   <div class="wrap">
-    Built as a fast learning artifact after working hands-on with Prismatic's SDK, CLI, embedded marketplace, and workflow-builder model.
+    <span class="pp">Built hands-on with Prismatic's code-native SDK, CLI, and embedded marketplace — a working artifact, not a mockup.</span>
+    &nbsp;·&nbsp; <a href="./app.html">Open the product ↗</a>
     &nbsp;·&nbsp; <a href="https://github.com/smeltser-dev/acme-x-prismatic">Repository ↗</a>
     &nbsp;·&nbsp; <a href="https://github.com/smeltser-dev/acme-x-prismatic/tree/main/integration">Integration code ↗</a>
   </div>
 </footer>
-
-<script>
-  // Swap-in your unlisted YouTube id to activate the embed.
-  var VIDEO_ID = "";
-
-  var DIMS = [
-    { k:"Time to first integration", without:"6–10 weeks of custom build", with:"Days to a sellable integration" },
-    { k:"Who owns each connector", without:"Acme engineering — every time", with:"Built once, then customers self-serve" },
-    { k:"Weird sources (SOAP / telematics)", without:"Bespoke, fragile, undocumented", with:"Code-native SDK fills the gap" },
-    { k:"Customer configuration", without:"Support tickets & hardcoded values", with:"Embedded marketplace + config wizard" },
-    { k:"Scaling to 1,000 customers", without:"Backlog + per-customer variance", with:"Reusable integration, per-customer instances" },
-    { k:"Engineering focus", without:"~30% capacity on integration upkeep", with:"Back on Acme's core product" }
-  ];
-
-  var SURFACES = {
-    without:{
-      head:"What Acme lives with today", lead:"Integration work that never becomes product.",
-      items:[
-        { t:"Hand-built admin screens", d:"Every customer's config is bespoke or hardcoded." },
-        { t:"Support-ticket onboarding", d:"Turning on an integration means a human in the loop." },
-        { t:"The engineering backlog", d:"Each new request competes with core-product work." },
-        { t:"4 a.m. pages", d:"A vendor changes a webhook; nobody told Acme." }
-      ]
-    },
-    with:{
-      head:"What Acme ships instead", lead:"The same work, productized — Acme owns the opinion, Prismatic owns the substrate.",
-      items:[
-        { t:"Embedded marketplace", d:"Contractors browse and activate integrations themselves." },
-        { t:"Config wizard", d:"A dropdown that live-fetches the customer's own vehicles." },
-        { t:"Embedded workflow builder", d:"Customers build the one-off they need — no Acme eng." },
-        { t:"Observable runtime", d:"Every run logged: 5 scanned → 2 work orders." }
-      ]
-    }
-  };
-
-  function getMode(){
-    var p = new URLSearchParams(location.search);
-    if(p.has("without")) return "without";
-    if(p.has("with")) return "with";
-    return "with";
-  }
-
-  function render(mode){
-    document.getElementById("heroSwap").textContent = mode==="with" ? "solved with Prismatic" : "built the hard way";
-    document.getElementById("heroSwap").style.color = mode==="with" ? "var(--teal)" : "var(--warn)";
-    document.getElementById("modeline").textContent = mode==="with"
-      ? "Showing: with Prismatic. Toggle to see the build-it-yourself path."
-      : "Showing: without Prismatic — the build-it-yourself path. Toggle to compare.";
-
-    document.getElementById("compareLead").textContent = mode==="with"
-      ? "Build once, productize the experience, let customers self-serve."
-      : "Every integration is a custom project that lands on engineering.";
-
-    var dims = document.getElementById("dims");
-    dims.innerHTML = "";
-    DIMS.forEach(function(d){
-      var el = document.createElement("div");
-      el.className = "card " + mode;
-      el.innerHTML = '<div class="k">'+d.k+'</div><div class="v">'+(mode==="with"?d.with:d.without)+'</div>';
-      dims.appendChild(el);
-    });
-
-    var s = SURFACES[mode];
-    document.getElementById("surfHead").textContent = s.head;
-    document.getElementById("surfLead").textContent = s.lead;
-    var grid = document.getElementById("surfaces");
-    grid.innerHTML = "";
-    s.items.forEach(function(it){
-      var el = document.createElement("div");
-      el.className = "surface " + (mode==="without"?"pain":"");
-      el.innerHTML = '<span class="tag">'+(mode==="with"?"Prismatic surface":"Today")+'</span><h3>'+it.t+'</h3><p>'+it.d+'</p>';
-      grid.appendChild(el);
-    });
-
-    document.querySelectorAll(".toggle button").forEach(function(b){
-      b.classList.toggle("active", b.dataset.mode===mode);
-    });
-  }
-
-  function setMode(mode, push){
-    render(mode);
-    if(push){
-      var u = new URL(location.href);
-      u.search = "?" + mode;
-      history.replaceState(null, "", u);
-    }
-  }
-
-  document.querySelectorAll(".toggle button").forEach(function(b){
-    b.addEventListener("click", function(){ setMode(b.dataset.mode, true); });
-  });
-
-  if(VIDEO_ID){
-    document.getElementById("video").innerHTML =
-      '<iframe src="https://www.youtube.com/embed/'+VIDEO_ID+'" title="Walkthrough" allow="accelerometer; clipboard-write; encrypted-media; picture-in-picture" allowfullscreen></iframe>';
-  }
-
-  setMode(getMode(), false);
-</script>
 </body>
 </html>
